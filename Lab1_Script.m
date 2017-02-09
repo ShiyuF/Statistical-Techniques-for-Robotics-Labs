@@ -30,6 +30,7 @@ M = [randi([0 8000],1,n);...
 ML = [ M(1,:)+ cos(M(3,:)).*25;...
        M(2,:)+ sin(M(3,:)).*25;...
        M(3,:)]; 
+wts = zeros(n,1);
 
 % assume the starting odometer readings for robot center and laser are 0
 x_odm_prev = 0;
@@ -64,6 +65,14 @@ while ~feof(fid)
         x_lsr_prev = x_lsr_now;
         y_lsr_prev = y_lsr_now;
         th_lsr_prev = th_lsr_now;
+        
+        % Use laser data to compute weights:
+        lsr_data = temp(7:end-1); % last entry is time stamp
+        for i=1:n
+            % Fetch true range reading from lookup table:
+            % true_zks = fetch(M(:,i) or ML(:,i), ); 
+            wts(i) = update(true_zks,lsr_data);
+        end
         
     elseif (cl(1)=='O')
         % O x y theta ts
